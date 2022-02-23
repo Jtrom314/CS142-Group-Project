@@ -10,7 +10,7 @@ const int SIZE_CONSTANT = 10;
 const int SET_WIDTH_CONSTANT = 9;
 const int SET_PRECISION_CONSTANT = 3;
 
-void WriteToFile(int array[SIZE_CONSTANT][SIZE_CONSTANT]);
+void WriteToFile(double array[SIZE_CONSTANT][SIZE_CONSTANT]);
 
 bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
 
@@ -19,8 +19,8 @@ void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]);
 void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
 
 int main() {
-    int array[SIZE_CONSTANT][SIZE_CONSTANT];
-    
+    double array[SIZE_CONSTANT][SIZE_CONSTANT];
+
     //function initalize the array
     // Nick
     //function print array to screen
@@ -37,8 +37,8 @@ int main() {
     bool isDone = false; //Is done refers to whether or not the values in the plate have ceased to change by more than 0.1 degrees. This is modified
     // by manipulate array function
     int counter = 1; //Counter must be set to 1 [one] since this counts the number of iterations the hot plate has been through. By this point in the code
-        // the array has already been through one iteration.
-    int copyArray[SIZE_CONSTANT][SIZE_CONSTANT]; //This is the copy array. More on that in a later comment
+    // the array has already been through one iteration.
+    double copyArray[SIZE_CONSTANT][SIZE_CONSTANT]; //This is the copy array. More on that in a later comment
     int i,j;
 
     while (continueLooping) {
@@ -65,7 +65,7 @@ int main() {
     //PrintArray(copyArray); {NICK, can you implement the print function right here as well?}
 }
 
-void WriteToFile(int array[SIZE_CONSTANT][SIZE_CONSTANT]) {
+void WriteToFile(double array[SIZE_CONSTANT][SIZE_CONSTANT]) {
 
     string fileName = "Hotplate.csv";
     ofstream outSS;
@@ -119,29 +119,31 @@ bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
     return done;
 }
 
-void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]){
+void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]) {
     //Simple function to print the current state of the hotplate
-    for (int i=0; i<SIZE_CONSTANT; i++){
-        for (int j=0; j<SIZE_CONSTANT-1; j++){
+    for (int i = 0; i < SIZE_CONSTANT; i++) {
+        for (int j = 0; j < SIZE_CONSTANT - 1; j++) {
             cout << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << input[i][j] << ",";
         }
-        cout << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << input[i][SIZE_CONSTANT-1] << endl;
-}
-    
-void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
-    ifstream inFS;
-    inFS.open("Inputplate.txt");
-
-    if(!inFS.is_open()){
-        cout << "File failed to open" << endl;
+        cout << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << input[i][SIZE_CONSTANT - 1]
+             << endl;
     }
+}
 
-    int input=0;
-    for (int i=0; i<SIZE_CONSTANT; i++){
-        for (int j=0; j<SIZE_CONSTANT; j++){
-            inFS >> input;
-            inputArray[i][j] = input;
+    void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
+        ifstream inFS;
+        inFS.open("Inputplate.txt");
+
+        if(!inFS.is_open()){
+            cout << "File failed to open" << endl;
         }
+
+        int input=0;
+        for (int i=0; i<SIZE_CONSTANT; i++){
+            for (int j=0; j<SIZE_CONSTANT; j++){
+                inFS >> input;
+                inputArray[i][j] = input;
+            }
+        }
+        inFS.close();
     }
-    inFS.close();
-}
