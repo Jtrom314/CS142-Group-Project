@@ -1,6 +1,8 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <string>
+#include <math.h>
 
 using namespace std;
 
@@ -9,6 +11,12 @@ const int SET_WIDTH_CONSTANT = 9;
 const int SET_PRECISION_CONSTANT = 3;
 
 void WriteToFile(int array[SIZE_CONSTANT][SIZE_CONSTANT]);
+
+bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
+
+void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]);
+
+void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
 
 int main() {
     int array[SIZE_CONSTANT][SIZE_CONSTANT];
@@ -78,4 +86,62 @@ void WriteToFile(int array[SIZE_CONSTANT][SIZE_CONSTANT]) {
     }
 
     outSS.close();
+}
+
+bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
+
+    //Creates a copy of the current state of the hotplate
+    double copyArray[SIZE_CONSTANT][SIZE_CONSTANT];
+    for (int i=0; i<SIZE_CONSTANT; i++){
+        for (int j=0; j<SIZE_CONSTANT; j++){
+            copyArray[i][j] = inputArray[i][j];
+        }
+    }
+
+    //Updates the hotplate for the next iteration
+    for (int i=1; i<SIZE_CONSTANT-1; i++){
+        for (int j=1; j<SIZE_CONSTANT-1; j++){
+            inputArray[i][j] = (copyArray[i][j-1] + copyArray[i][j+1] + copyArray[i+1][j] + copyArray[i-1][j])/4.0;
+        }
+    }
+
+    //Checks how many "cells" changed less than 0.1
+    int steadyStateCheck = 0;
+    for (int i=0; i<SIZE_CONSTANT; i++){
+        for (int j=0; j<SIZE_CONSTANT; j++){
+            if ((fabs(inputArray[i][j]-copyArray[i][j]) <= 0.1)){
+                steadyStateCheck++;
+            }
+        }
+    }
+
+    bool done = (steadyStateCheck==100);
+    return done;
+}
+
+void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]){
+    //Simple function to print the current state of the hotplate
+    for (int i=0; i<SIZE_CONSTANT; i++){
+        for (int j=0; j<SIZE_CONSTANT-1; j++){
+            cout << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << input[i][j] << ",";
+        }
+        cout << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << input[i][SIZE_CONSTANT-1] << endl;
+}
+    
+void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
+    ifstream inFS;
+    inFS.open("Inputplate.txt");
+
+    if(!inFS.is_open()){
+        cout << "File failed to open" << endl;
+    }
+
+    int input=0;
+    for (int i=0; i<SIZE_CONSTANT; i++){
+        for (int j=0; j<SIZE_CONSTANT; j++){
+            inFS >> input;
+            inputArray[i][j] = input;
+        }
+    }
+    inFS.close();
 }
