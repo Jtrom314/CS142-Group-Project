@@ -22,15 +22,17 @@ int main() {
     double array[SIZE_CONSTANT][SIZE_CONSTANT];
 
     //function initalize the array
+    InitializeHotPlate(array);
     // Nick
     //function print array to screen
     // Nick
     //function manipulate the array
     // Nick
 
+    bool oneIteration = IterateHotPlate(array);
     cout << "Printing plate after one iteration..." << endl;
-    //bool placeholder = iteration function **REMEMBER TO UNCOMMENT THIS**
-    //PrintArray(array); **REMEMBER TO UNCOMMENT THIS**
+
+    PrintHotPlate(array);
 
 
     bool continueLooping = true; //Should be self explanatory what this variable does.
@@ -42,11 +44,11 @@ int main() {
     int i,j;
 
     while (continueLooping) {
-        //isDone = what the function returns {TYPE BOOL}
-        continueLooping = false; //**TAKE THIS LINE OUT**
+        isDone = IterateHotPlate(array);
+
         if (isDone) {
             cout << "Printing final plate..." << endl;
-            //PrintArray(array);
+            PrintHotPlate(array);
             continueLooping = false;
         } else if (counter == 3) { //This copies the array after the third iteration so that it can be printed out later on in the program.
             for (i = 0; i < SIZE_CONSTANT; i++) {
@@ -62,24 +64,29 @@ int main() {
     WriteToFile(array); //The array should be modified after each iteration using an array pass-by reference
 
     cout << "Printing input plate after 3 updates..." << endl;
-    //PrintArray(copyArray); {NICK, can you implement the print function right here as well?}
+    PrintHotPlate(copyArray);
 }
 
 void WriteToFile(double array[SIZE_CONSTANT][SIZE_CONSTANT]) {
 
     string fileName = "Hotplate.csv";
     ofstream outSS;
+
     outSS.open(fileName);
+
+    if (!outSS.is_open()) {
+        cout << "failed to open file" << endl;
+
+    }
 
     int i,j;
 
-    cout << fixed << setprecision(SET_PRECISION_CONSTANT);
     for (i = 0; i < SIZE_CONSTANT; i++) {
         for (j = 0; j < SIZE_CONSTANT; j++) {
             if (j != SIZE_CONSTANT -1) {
-                outSS << setw(SET_WIDTH_CONSTANT) << array[i][j] << ",";
+                outSS << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << array[i][j] << ",";
             } else {
-                outSS << setw(SET_WIDTH_CONSTANT) << array[i][j];
+                outSS << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << array[i][j];
             }
         }
         outSS << endl;
@@ -130,20 +137,21 @@ void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]) {
     }
 }
 
-    void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
-        ifstream inFS;
-        inFS.open("Inputplate.txt");
+void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
+    ifstream inFS;
+    inFS.open("Inputplate.txt");
 
-        if(!inFS.is_open()){
-            cout << "File failed to open" << endl;
-        }
+     if(!inFS.is_open()){
+        cout << "File failed to open" << endl;
+     }
 
-        int input=0;
-        for (int i=0; i<SIZE_CONSTANT; i++){
-            for (int j=0; j<SIZE_CONSTANT; j++){
-                inFS >> input;
-                inputArray[i][j] = input;
-            }
-        }
+     double input=0;
+     for (int i=0; i<SIZE_CONSTANT; i++){
+         for (int j=0; j<SIZE_CONSTANT; j++){
+               inFS >> input;
+               cout << input << endl;
+               inputArray[i][j] = input;
+         }
+     }
         inFS.close();
-    }
+}
