@@ -16,18 +16,33 @@ bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
 
 void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]);
 
-void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
+void InitializeHotPlateFromFile(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]);
 
 int main() {
     double array[SIZE_CONSTANT][SIZE_CONSTANT];
+    cout << "Hotplate simulator" << endl << endl;
 
-    //function initalize the array
-    InitializeHotPlate(array);
-    // Nick
-    //function print array to screen
-    // Nick
-    //function manipulate the array
-    // Nick
+    cout << "Printing the initial plate values..." << endl;
+    int i, j;
+    for (i = 0; i < SIZE_CONSTANT; i++) {
+        for (j = 0; j < SIZE_CONSTANT; j++) {
+            if (i == 0 || i == SIZE_CONSTANT - 1) {
+                if (j != 0 && j != SIZE_CONSTANT - 1) {
+                    array[i][j] = 100.0;
+                } else {
+                    array[i][j] = 0.0;
+                }
+            } else {
+                array[i][j] = 0.0;
+            }
+        }
+    }
+
+
+
+    PrintHotPlate(array);
+
+
 
     bool oneIteration = IterateHotPlate(array);
     cout << "Printing plate after one iteration..." << endl;
@@ -38,11 +53,7 @@ int main() {
     bool continueLooping = true; //Should be self explanatory what this variable does.
     bool isDone = false; //Is done refers to whether or not the values in the plate have ceased to change by more than 0.1 degrees. This is modified
     // by manipulate array function
-    int counter = 1; //Counter must be set to 1 [one] since this counts the number of iterations the hot plate has been through. By this point in the code
-    // the array has already been through one iteration.
-    double copyArray[SIZE_CONSTANT][SIZE_CONSTANT]; //This is the copy array. More on that in a later comment
-    int i,j;
-
+    
     while (continueLooping) {
         isDone = IterateHotPlate(array);
 
@@ -50,21 +61,22 @@ int main() {
             cout << "Printing final plate..." << endl;
             PrintHotPlate(array);
             continueLooping = false;
-        } else if (counter == 3) { //This copies the array after the third iteration so that it can be printed out later on in the program.
-            for (i = 0; i < SIZE_CONSTANT; i++) {
-                for (j = 0; j < SIZE_CONSTANT; j++) {
-                    copyArray[i][j] = array[i][j];
-                }
-            }
         }
-        counter++; //Increments the number of times the array has been modified.
     }
 
     cout << "Writing final plate to \"Hotplate.csv\"..." << endl;
     WriteToFile(array); //The array should be modified after each iteration using an array pass-by reference
 
+    InitializeHotPlateFromFile(array);
+
+    for (i = 0; i < 3; i++) {
+        bool dummy = IterateHotPlate(array);
+    }
+
+
+
     cout << "Printing input plate after 3 updates..." << endl;
-    PrintHotPlate(copyArray);
+    PrintHotPlate(array);
 }
 
 void WriteToFile(double array[SIZE_CONSTANT][SIZE_CONSTANT]) {
@@ -79,12 +91,13 @@ void WriteToFile(double array[SIZE_CONSTANT][SIZE_CONSTANT]) {
 
     }
 
-    int i,j;
+    int i, j;
 
     for (i = 0; i < SIZE_CONSTANT; i++) {
         for (j = 0; j < SIZE_CONSTANT; j++) {
-            if (j != SIZE_CONSTANT -1) {
-                outSS << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << array[i][j] << ",";
+            if (j != SIZE_CONSTANT - 1) {
+                outSS << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << array[i][j]
+                      << ",";
             } else {
                 outSS << fixed << setprecision(SET_PRECISION_CONSTANT) << setw(SET_WIDTH_CONSTANT) << array[i][j];
             }
@@ -95,34 +108,35 @@ void WriteToFile(double array[SIZE_CONSTANT][SIZE_CONSTANT]) {
     outSS.close();
 }
 
-bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
+bool IterateHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]) {
 
     //Creates a copy of the current state of the hotplate
     double copyArray[SIZE_CONSTANT][SIZE_CONSTANT];
-    for (int i=0; i<SIZE_CONSTANT; i++){
-        for (int j=0; j<SIZE_CONSTANT; j++){
+    for (int i = 0; i < SIZE_CONSTANT; i++) {
+        for (int j = 0; j < SIZE_CONSTANT; j++) {
             copyArray[i][j] = inputArray[i][j];
         }
     }
 
     //Updates the hotplate for the next iteration
-    for (int i=1; i<SIZE_CONSTANT-1; i++){
-        for (int j=1; j<SIZE_CONSTANT-1; j++){
-            inputArray[i][j] = (copyArray[i][j-1] + copyArray[i][j+1] + copyArray[i+1][j] + copyArray[i-1][j])/4.0;
+    for (int i = 1; i < SIZE_CONSTANT - 1; i++) {
+        for (int j = 1; j < SIZE_CONSTANT - 1; j++) {
+            inputArray[i][j] =
+                    (copyArray[i][j - 1] + copyArray[i][j + 1] + copyArray[i + 1][j] + copyArray[i - 1][j]) / 4.0;
         }
     }
 
     //Checks how many "cells" changed less than 0.1
     int steadyStateCheck = 0;
-    for (int i=0; i<SIZE_CONSTANT; i++){
-        for (int j=0; j<SIZE_CONSTANT; j++){
-            if ((fabs(inputArray[i][j]-copyArray[i][j]) <= 0.1)){
+    for (int i = 0; i < SIZE_CONSTANT; i++) {
+        for (int j = 0; j < SIZE_CONSTANT; j++) {
+            if ((fabs(inputArray[i][j] - copyArray[i][j]) <= 0.1)) {
                 steadyStateCheck++;
             }
         }
     }
 
-    bool done = (steadyStateCheck==100);
+    bool done = (steadyStateCheck == 100);
     return done;
 }
 
@@ -137,20 +151,20 @@ void PrintHotPlate(double input[SIZE_CONSTANT][SIZE_CONSTANT]) {
     }
 }
 
-void InitializeHotPlate(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]){
+void InitializeHotPlateFromFile(double inputArray[SIZE_CONSTANT][SIZE_CONSTANT]) {
     ifstream inFS;
     inFS.open("Inputplate.txt");
 
-     if(!inFS.is_open()){
+    if (!inFS.is_open()) {
         cout << "File failed to open" << endl;
-     }
+    }
 
-     double input=0;
-     for (int i=0; i<SIZE_CONSTANT; i++){
-         for (int j=0; j<SIZE_CONSTANT; j++){
-               inFS >> input;
-               inputArray[i][j] = input;
-         }
-     }
-        inFS.close();
+    double input = 0;
+    for (int i = 0; i < SIZE_CONSTANT; i++) {
+        for (int j = 0; j < SIZE_CONSTANT; j++) {
+            inFS >> input;
+            inputArray[i][j] = input;
+        }
+    }
+    inFS.close();
 }
